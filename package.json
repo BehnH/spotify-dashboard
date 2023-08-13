@@ -1,0 +1,7 @@
+{
+    "name": "spotify-dashboard",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ]
+}

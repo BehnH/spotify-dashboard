@@ -1,0 +1,17 @@
+{
+  "name": "backend",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "latest",
+    "@types/jsonwebtoken": "^9.0.2",
+    "jose": "^4.14.4",
+    "prisma": "latest"
+  }
+}
