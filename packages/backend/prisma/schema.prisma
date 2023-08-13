@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id           String        @id @unique
+    accessToken  String        @unique
+    email        String        @unique
+    tokenType    String
+    scope        String
+    expiresAt    Int
+    refreshToken String        @unique
+    displayName  String?
+    lastScan     Int?
+    PlayHistory  PlayHistory[]
+}
+
+model Track {
+    id          String        @id @unique
+    userHref    String
+    href        String
+    name        String
+    popularity  Int
+    trackNumber Int
+    type        String
+    uri         String
+    isLocal     Boolean
+    artists     Artist[]
+    album       Album         @relation(fields: [albumId], references: [id])
+    PlayHistory PlayHistory[] @ignore
+    albumId     String
+}
+
+model Artist {
+    id         String   @id @unique
+    userHref   String
+    href       String
+    name       String
+    genres     String[]
+    popularity Int
+    type       String
+    uri        String
+    images     Image[]
+    Album      Album[]
+    Track      Track[]
+}
+
+model Image {
+    id       String  @id @default(uuid())
+    height   Int
+    width    Int
+    url      String
+    Artist   Artist? @relation(fields: [artistId], references: [id])
+    artistId String?
+    Album    Album?  @relation(fields: [albumId], references: [id])
+    albumId  String?
+
+    @@unique([artistId, url], name: "artist_url_unique")
+    @@unique([albumId, url], name: "album_url_unique")
+}
+
+model Album {
+    id                   String               @id @unique
+    userHref             String
+    href                 String
+    albumType            AlbumType
+    totalTracks          Int
+    Images               Image[]
+    name                 String
+    releaseDate          String
+    releaseDatePrecision ReleaseDatePrecision
+    uri                  String
+    genres               String[]
+    label                String
+    popularity           Int
+    artists              Artist[]
+    Track                Track[]
+}
+
+model PlayHistory {
+    id       String @id @unique @default(uuid())
+    user     User   @relation(fields: [userId], references: [id])
+    userId   String
+    playedAt Int
+    trackId  String
+    track    Track  @relation(fields: [trackId], references: [id])
+
+    @@unique([userId, trackId, playedAt], name: "user_track_playedAt_unique")
+    @@index([userId, trackId], name: "user_track_unique")
+    @@index([userId, playedAt(sort: Desc)])
+}
+
+enum AlbumType {
+    album
+    single
+    compilation
+}
+
+enum ReleaseDatePrecision {
+    year
+    month
+    day
+}
