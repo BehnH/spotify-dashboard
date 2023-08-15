@@ -35,7 +35,7 @@ model Track {
     isLocal     Boolean
     artists     Artist[]
     album       Album         @relation(fields: [albumId], references: [id])
-    PlayHistory PlayHistory[] @ignore
+    PlayHistory PlayHistory[]
     albumId     String
 }
 
