@@ -1,5 +1,11 @@
 import * as jose from 'jose';
 
+type DecryptedJwt = {
+    success: boolean;
+    message?: string;
+    payload?: jose.JWTPayload;
+}
+
 export const encryptJwt = async (payload: jose.JWTPayload): Promise<string> => {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
     const algo = 'HS256';
@@ -11,15 +17,15 @@ export const encryptJwt = async (payload: jose.JWTPayload): Promise<string> => {
         .sign(secret);
 };
 
-export const decryptJwt = async (cookieHeader: string): Promise<jose.JWTPayload | Error> => {
+export const decryptJwt = async (cookieHeader: string): Promise<DecryptedJwt> => {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
     const cookies = parseCookies(cookieHeader);
     const cookie = cookies?.find((cookie) => cookie.key === 'token');
 
-    if (!cookies || !cookie) return new Error('Invalid cookie')
+    if (!cookies || !cookie) return { success: false, message: 'No token cookie found' };
 
-    const { payload, protectedHeader } = await jose.jwtVerify(cookie.value, secret);
-    return payload;
+    const { payload } = await jose.jwtVerify(cookie.value, secret);
+    return { success: true, payload }
 }
 
 export const parseCookies = (cookie: string): null | { key: string, value: string }[] => {

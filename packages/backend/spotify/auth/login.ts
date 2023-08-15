@@ -13,6 +13,10 @@ type UserData = {
     id: string;
     email: string;
     display_name: string | null;
+    error?: {
+        status: number;
+        message: string;
+    }
 };
 
 export const login = async (): Promise<Response> => {
@@ -45,6 +49,11 @@ export const getAccessToken = async (code: string): Promise<Response> => {
                 'Authorization': `Bearer ${responseData.access_token}`
             }
         }).then((res: Response) => res.json());
+
+        if (user.error) return new Response(JSON.stringify({
+            success: false,
+            message: user.error.message
+        }));
 
         await prisma.user.upsert({
             where: {
