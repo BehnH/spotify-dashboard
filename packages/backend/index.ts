@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { SpotifyLoginApi } from "./spotify";
+import { Crypt, SpotifyLoginApi } from "./spotify";
 import { scanRecentlyPlayedForAllUsers } from "./jobs/recentlyPlayed";
+import { getRecentTracksApi } from "./spotify/player/recent";
 
 export const prisma = new PrismaClient();
 
@@ -11,9 +12,11 @@ main();
 
 Bun.serve({
     port: 9000,
-    fetch(req): Response | Promise<Response> {
+    async fetch(req): Promise<Response> {
         const url = new URL(req.url);
         const path = url.pathname;
+
+        const cookieHeader = req.headers.get("cookie");
 
         switch (path) {
             case "/api/login":
@@ -26,6 +29,26 @@ Bun.serve({
                 if (!code) return new Response("Failed to login", { status: 401 });
 
                 return SpotifyLoginApi.getAccessToken(code);
+            case "/api/history":
+                if (typeof cookieHeader !== "string") return new Response("Not authorized", { status: 401 });
+
+                const cookie = await Crypt.decryptJwt(cookieHeader);
+                if (!cookie.success) return new Response("Not authorized", { status: 401 });
+
+                // const page = url.searchParams.get("page");
+                return await getRecentTracksApi(cookie.payload?.userId as string);
+            case "/api/album/search":
+                return new Response("Not implemented", { status: 501 });
+            case "/api/album":
+                return new Response("Not implemented", { status: 501 });
+            case "/api/artist/search":
+                return new Response("Not implemented", { status: 501 });
+            case "/api/artist":
+                return new Response("Not implemented", { status: 501 });
+            case "/api/track/search":
+                return new Response("Not implemented", { status: 501 });
+            case "/api/track":
+                return new Response("Not implemented", { status: 501 });
             default:
                 return new Response("Not found", { status: 404 });
         }
