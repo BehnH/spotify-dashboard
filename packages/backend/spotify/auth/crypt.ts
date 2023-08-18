@@ -1,6 +1,6 @@
 import * as jose from 'jose';
 
-type DecryptedJwt = {
+export type DecryptedJwt = {
     success: boolean;
     message?: string;
     payload?: jose.JWTPayload;
