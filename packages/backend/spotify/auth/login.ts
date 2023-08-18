@@ -25,9 +25,18 @@ export const login = async (): Promise<Response> => {
             response_type: 'code',
             client_id: process.env.SPOTIFY_CLIENT_ID as string,
             scope: 'user-read-private user-read-email user-read-recently-played',
-            redirect_uri: 'http://localhost:9000/api/login/callback'
+            redirect_uri: `${process.env.PUBLIC_URL}/api/auth/login/callback`
         }), 301);
 };
+
+export const logout = (): Response => {
+    return Response.redirect(`${process.env.PUBLIC_URL}/auth`, {
+        status: 301,
+        headers: {
+            'Set-Cookie': `token=null; expires=Thu, 01 Jan 1970 00:00:00 UTC; Path=/; HttpOnly; SameSite=Strict;`
+        }
+    });
+}
 
 export const getAccessToken = async (code: string): Promise<Response> => {
     try {
@@ -39,7 +48,7 @@ export const getAccessToken = async (code: string): Promise<Response> => {
             },
             body: new URLSearchParams({
                 code: code as string,
-                redirect_uri: 'http://localhost:9000/api/login/callback',
+                redirect_uri: `${process.env.PUBLIC_URL}/api/auth/login/callback`,
                 grant_type: 'authorization_code'
             })
         }).then((res: Response) => res.json());
@@ -81,13 +90,10 @@ export const getAccessToken = async (code: string): Promise<Response> => {
         const token = await Crypt.encryptJwt({ userId: user.id })
 
 
-        return new Response(JSON.stringify({
-            success: true,
-            message: null,
-        }), {
-            status: 200,
+        return Response.redirect(process.env.PUBLIC_URL, {
+            status: 301,
             headers: {
-                'Set-Cookie': `token=${token}; Path=/; HttpOnly; SameSite=Strict;`
+                'Set-Cookie': `token=${token}; Path=/; HttpOnly; SameSite=Strict;`,
             }
         });
     } catch (error) {
