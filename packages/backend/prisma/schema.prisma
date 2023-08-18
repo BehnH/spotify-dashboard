@@ -20,7 +20,7 @@ model User {
     refreshToken String        @unique
     displayName  String?
     lastScan     Int?
-    PlayHistory  PlayHistory[]
+    playHistory  PlayHistory[]
 }
 
 model Track {
@@ -33,9 +33,10 @@ model Track {
     type        String
     uri         String
     isLocal     Boolean
+    durationMs  Int           @default(0)
     artists     Artist[]
     album       Album         @relation(fields: [albumId], references: [id])
-    PlayHistory PlayHistory[]
+    playHistory PlayHistory[]
     albumId     String
 }
 
@@ -49,8 +50,8 @@ model Artist {
     type       String
     uri        String
     images     Image[]
-    Album      Album[]
-    Track      Track[]
+    albums     Album[]
+    tracks     Track[]
 }
 
 model Image {
@@ -73,7 +74,7 @@ model Album {
     href                 String
     albumType            AlbumType
     totalTracks          Int
-    Images               Image[]
+    images               Image[]
     name                 String
     releaseDate          String
     releaseDatePrecision ReleaseDatePrecision
@@ -82,7 +83,7 @@ model Album {
     label                String
     popularity           Int
     artists              Artist[]
-    Track                Track[]
+    tracks               Track[]
 }
 
 model PlayHistory {
