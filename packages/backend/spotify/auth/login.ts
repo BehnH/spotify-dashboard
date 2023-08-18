@@ -23,7 +23,7 @@ export const login = async (): Promise<Response> => {
     return Response.redirect('https://accounts.spotify.com/authorize?' +
         new URLSearchParams({
             response_type: 'code',
-            client_id: process.env.SPOTIFY_CLIENT_ID as string,
+            client_id: process.env.SPOTIFY_CLIENT_ID,
             scope: 'user-read-private user-read-email user-read-recently-played',
             redirect_uri: `${process.env.PUBLIC_URL}/api/auth/login/callback`
         }), 301);
@@ -33,7 +33,8 @@ export const logout = (): Response => {
     return Response.redirect(`${process.env.PUBLIC_URL}/auth`, {
         status: 301,
         headers: {
-            'Set-Cookie': `token=null; expires=Thu, 01 Jan 1970 00:00:00 UTC; Path=/; HttpOnly; SameSite=Strict;`
+            'Set-Cookie': `token=null; expires=Thu, 01 Jan 1970 00:00:00 UTC; Path=/; HttpOnly; SameSite=Strict;`,
+            'Cache-Control': 'no-cache'
         }
     });
 }
@@ -47,7 +48,7 @@ export const getAccessToken = async (code: string): Promise<Response> => {
                 'Authorization': `Basic ${Crypt.formServiceAuthHeader().toString('base64')}`
             },
             body: new URLSearchParams({
-                code: code as string,
+                code,
                 redirect_uri: `${process.env.PUBLIC_URL}/api/auth/login/callback`,
                 grant_type: 'authorization_code'
             })
@@ -94,6 +95,7 @@ export const getAccessToken = async (code: string): Promise<Response> => {
             status: 301,
             headers: {
                 'Set-Cookie': `token=${token}; Path=/; HttpOnly; SameSite=Strict;`,
+                'Cache-Control': 'no-cache'
             }
         });
     } catch (error) {
