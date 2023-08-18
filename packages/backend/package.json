@@ -12,6 +12,7 @@
     "@prisma/client": "latest",
     "@types/jsonwebtoken": "^9.0.2",
     "jose": "^4.14.4",
-    "prisma": "latest"
+    "prisma": "latest",
+    "zod": "^3.22.1"
   }
 }
