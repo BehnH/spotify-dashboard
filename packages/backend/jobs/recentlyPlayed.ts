@@ -110,6 +110,9 @@ export const scanRecentlyPlayed = async (user: User) => {
                         genres: album.genres,
                         popularity: album.popularity,
                         label: album.label,
+                        artists: {
+                            connect: item.track.artists.map((artist: ArtistEndpointResponse) => ({ id: artist.id }))
+                        }
                     }
                 })
 
@@ -138,6 +141,7 @@ export const scanRecentlyPlayed = async (user: User) => {
                         uri: item.track.uri,
                         isLocal: item.track.is_local,
                         albumId: item.track.album.id,
+                        durationMs: item.track.duration_ms,
                         artists: {
                             connect: item.track.artists.map((artist: ArtistEndpointResponse) => ({ id: artist.id }))
                         }
