@@ -1,6 +1,6 @@
 import { prisma } from "../..";
 
-export const getRecentTracksApi = async (userId: string): Promise<Response> => {
+export const getRecentTracksApi = async (userId: string, limit?: number): Promise<Response> => {
     const user = await prisma.user.findUnique({
         where: {
             id: userId
@@ -28,7 +28,7 @@ export const getRecentTracksApi = async (userId: string): Promise<Response> => {
                             id: true,
                             name: true,
                             href: true,
-                            userHref: true,
+                            userHref: true
                         }
                     },
                     album: {
@@ -37,12 +37,20 @@ export const getRecentTracksApi = async (userId: string): Promise<Response> => {
                             name: true,
                             href: true,
                             userHref: true,
+                            images: {
+                                select: {
+                                    id: true,
+                                    height: true,
+                                    width: true,
+                                    url: true
+                                }
+                            }
                         }
                     },
                 },
-            }
+            },
         },
-        take: 50,
+        take: limit ? limit : 20,
     });
 
     if (!tracks) return new Response(JSON.stringify({
