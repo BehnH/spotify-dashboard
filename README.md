@@ -2,7 +2,7 @@
 
 ![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-Welcome to the **Spotify Dashboard** project! This application provides a comprehensive dashboard for managing and visualizing your Spotify account's listening data. The backend is build using Bun and Prisma, while the frontend is built using Next.js and TailwindCSS.
+Welcome to the **Spotify Dashboard** project! This application provides a comprehensive dashboard for managing and visualizing your Spotify account's listening data. The backend is built using Node and Prisma, while the frontend is built using Next.js and TailwindCSS.
 
 ## Table of Contents
 
