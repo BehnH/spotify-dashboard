@@ -17,8 +17,8 @@ export default function Home() {
     const [user, setUser] = useState<{ name: string, image: string }>({ name: '', image: '' });
     const [isLoading, setIsLoading] = useState(true);
 
-    useSWR('/api/history', (apiUrl: string) => fetch(apiUrl).then(res => res.json()).then(data => setPlayHistory(data.data)));
-    useSWR('/api/analytics/tracks?type=pastday', (apiUrl: string) => fetch(apiUrl).then(res => res.json()).then(data => setTrackAnalytics({
+    useSWR('/api/v1/history', (apiUrl: string) => fetch(apiUrl).then(res => res.json()).then(data => setPlayHistory(data.data)));
+    useSWR('/api/v1/analytics/tracks?type=pastday', (apiUrl: string) => fetch(apiUrl).then(res => res.json()).then(data => setTrackAnalytics({
         count: data.count,
         prevDayCount: data.prevDayCount,
         diffPercent: data.diffPercent,
@@ -28,7 +28,7 @@ export default function Home() {
     })));
 
     useEffect(() => {
-        fetch('/api/whoami')
+        fetch('/api/v1/whoami')
             .then((res) => res.json())
             .then((data) => {
                 setUser({ name: data.data.displayName, image: data.data.image });
@@ -39,7 +39,7 @@ export default function Home() {
 
 
     useEffect(() => {
-        fetch('/api/analytics/artists?type=pastday')
+        fetch('/api/v1/analytics/artists?type=pastday')
             .then((res) => res.json())
             .then((data) => {
                 setArtistAnalytics({ count: data.count, diffCount: data.diffCount, diffPercent: data.diffPercent });
