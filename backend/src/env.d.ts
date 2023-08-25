@@ -1,5 +1,3 @@
-import { User } from "@prisma/client";
-
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
@@ -8,11 +6,6 @@ declare global {
             SPOTIFY_CLIENT_SECRET: string;
             JWT_SECRET: string;
             PUBLIC_URL: string;
-        }
-    }
-    namespace Express {
-        interface Request {
-            user: User
         }
     }
 }
