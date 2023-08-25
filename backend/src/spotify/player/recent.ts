@@ -1,13 +1,14 @@
+import { Response } from "express";
 import { prisma } from "../..";
 
-export const getRecentTracksApi = async (userId: string, limit?: number): Promise<Response> => {
+export const getRecentTracksApi = async (res: Response, userId: string, limit?: number): Promise<Response> => {
     const user = await prisma.user.findUnique({
         where: {
             id: userId
         }
     });
 
-    if (!user) return new Response(JSON.stringify({
+    if (!user) return res.status(500).send(JSON.stringify({
         success: false,
         message: 'User not found',
         data: null
@@ -53,15 +54,9 @@ export const getRecentTracksApi = async (userId: string, limit?: number): Promis
         take: limit ? limit : 20,
     });
 
-    if (!tracks) return new Response(JSON.stringify({
-        success: false,
-        message: 'No tracks found',
-        data: null
-    }));
-
-    return new Response(JSON.stringify({
+    return res.status(200).json({
         success: true,
-        message: null,
-        data: tracks
-    }));
+        message: "",
+        data: tracks ? tracks : []
+    });
 };

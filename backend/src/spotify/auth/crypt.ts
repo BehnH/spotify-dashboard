@@ -7,8 +7,10 @@ export type DecryptedJwt = {
 }
 
 export const encryptJwt = async (payload: jose.JWTPayload): Promise<string> => {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
+    const secret = new TextEncoder().encode(process.env.JWT_TOKEN_SECRET as string);
     const algo = 'HS256';
+
+    console.log(process.env.JWT_TOKEN_SECRET)
 
     return await new jose.SignJWT(payload)
         .setProtectedHeader({ alg: algo })
@@ -18,7 +20,7 @@ export const encryptJwt = async (payload: jose.JWTPayload): Promise<string> => {
 };
 
 export const decryptJwt = async (cookieHeader: string): Promise<DecryptedJwt> => {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
+    const secret = new TextEncoder().encode(process.env.JWT_TOKEN_SECRET as string);
     const cookies = parseCookies(cookieHeader);
     const cookie = cookies?.find((cookie) => cookie.key === 'token');
 

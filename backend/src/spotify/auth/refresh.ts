@@ -1,6 +1,8 @@
 import { User } from "@prisma/client";
-import { Crypt } from "..";
 import { prisma } from "../..";
+import { formServiceAuthHeader } from "./crypt";
+import { request } from "undici";
+import querystring from "node:querystring";
 
 type RefreshTokenResponse = {
     access_token: string;
@@ -10,17 +12,17 @@ type RefreshTokenResponse = {
 };
 
 export const refreshAccessToken = async (refreshToken: string): Promise<User> => {
-    const token: RefreshTokenResponse = await fetch('https://accounts.spotify.com/api/token', {
+    const token = await request('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Basic ${Crypt.formServiceAuthHeader().toString('base64')}`
+            Authorization: `Basic ${formServiceAuthHeader().toString('base64')}`
         },
-        body: new URLSearchParams({
+        body: querystring.stringify({
             grant_type: 'refresh_token',
             refresh_token: refreshToken
         })
-    }).then((res: Response) => res.json())
+    }).then((res) => res.body.json() as Promise<RefreshTokenResponse>)
 
     return await prisma.user.update({
         where: {

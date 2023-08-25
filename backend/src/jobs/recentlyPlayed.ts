@@ -4,13 +4,14 @@ import { prisma } from "..";
 import { AlbumEndpointResponse } from "../types/AlbumTypes";
 import { ArtistEndpointResponse } from "../types/ArtistTypes";
 import { RecentlyPlayedTrack } from "../types/TrackTypes";
+import { request } from "undici";
 
 type RecentlyPlayedTracks = {
     track: RecentlyPlayedTrack;
     played_at: string;
 };
 
-export const scanRecentlyPlayed = async (user: User) => {
+const scanRecentlyPlayed = async (user: User) => {
     let usr: User = user;
 
     if (!user.accessToken) return console.error(`No access token for ${user.displayName ? user.displayName : user.id}. Log in again.`);
@@ -23,11 +24,11 @@ export const scanRecentlyPlayed = async (user: User) => {
         usr = await refreshAccessToken(user.refreshToken);
     }
 
-    const response = await fetch('https://api.spotify.com/v1' + url, {
+    const response = await request('https://api.spotify.com/v1' + url, {
         headers: {
             Authorization: `Bearer ${usr.accessToken}`
         }
-    }).then((res: Response) => res.json() as Promise<{ href: string, limit: number, next: string, total: number, items: RecentlyPlayedTracks[] }>)
+    }).then((res) => res.body.json() as Promise<{ href: string, limit: number, next: string, total: number, items: RecentlyPlayedTracks[] }>)
         .catch((err: Error) => console.error(err));
 
     if (!response) return console.error(`No response for ${user.displayName ? user.displayName : user.id}.`);
@@ -58,11 +59,11 @@ export const scanRecentlyPlayed = async (user: User) => {
             // Create artists if they don't exist
             if (artistLookup.length < item.track.artists.length) {
                 const artistIds = item.track.artists.filter((artist: ArtistEndpointResponse) => !artistLookup.find((artistLookup) => artistLookup.id === artist.id));
-                const artists: { artists: ArtistEndpointResponse[] } = await fetch(`https://api.spotify.com/v1/artists?ids=${artistIds.map((artist: ArtistEndpointResponse) => artist.id).join(',')}`, {
+                const artists = await request(`https://api.spotify.com/v1/artists?ids=${artistIds.map((artist: ArtistEndpointResponse) => artist.id).join(',')}`, {
                     headers: {
                         Authorization: `Bearer ${usr.accessToken}`
                     }
-                }).then((res: Response) => res.json())
+                }).then((res) => res.body.json() as Promise<{ artists: ArtistEndpointResponse[] }>)
 
 
                 await prisma.artist.createMany({
@@ -90,11 +91,11 @@ export const scanRecentlyPlayed = async (user: User) => {
 
             // Create album if it doesn't exist
             if (albumLookup.length < 1) {
-                const album: AlbumEndpointResponse = await fetch(item.track.album.href, {
+                const album = await request(item.track.album.href, {
                     headers: {
                         Authorization: `Bearer ${usr.accessToken}`
                     }
-                }).then((res: Response) => res.json());
+                }).then((res) => res.body.json() as Promise<AlbumEndpointResponse>);
 
                 await prisma.album.create({
                     data: {
@@ -172,7 +173,7 @@ export const scanRecentlyPlayed = async (user: User) => {
     }
 }
 
-export const scanRecentlyPlayedForAllUsers = async () => {
+export default async function scanRecentlyPlayedForAllUsers() {
     setInterval(async () => {
         const users = await prisma.user.findMany({});
 
