@@ -3,6 +3,7 @@ import Link from 'next/link'
 import React from 'react'
 import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { millisecondsToHours } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function PlayHistoryTrackCard({ track }: { track: any }) {
 
@@ -15,6 +16,7 @@ export function PlayHistoryTrackCard({ track }: { track: any }) {
                         alt="img-blur-shadow"
                         width={640}
                         height={640}
+                        priority
                     />
                 </div>
                 <div className="p-6">
@@ -117,8 +119,23 @@ export function PlayHistoryListenTime({
                     <div className="flex flex-row flex-nowrap">
                         {listenTimeMs > listenTimePastMs ? <ChevronsUp color="#01c618" strokeWidth={3} /> : <ChevronsDown color="#c60101" strokeWidth={3} />}
                         <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                            That&apos;s {millisecondsToHours(listenTimePastMs)} than yesterday
+                            That&apos;s {millisecondsToHours(listenTimePastMs)} {listenTimeMs > listenTimePastMs ? ' more' : ' less'} than yesterday
                         </p>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}
+
+export function SkeletonCard() {
+    return (
+        <>
+            <div className="relative flex flex-shrink-0 lg:w-96 flex-col rounded-xl bg-slate-100 dark:bg-slate-300 text-gray-700 shadow-md">
+                <div className="p-2">
+                    <Skeleton className="mb-2 h-7 w-full drop-shadow-md" />
+                    <div className="flex flex-row flex-nowrap">
+                        <Skeleton className="h-6 w-full drop-shadow-md" />
                     </div>
                 </div>
             </div>
