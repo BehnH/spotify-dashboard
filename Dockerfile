@@ -19,19 +19,13 @@ COPY ./frontend ./
 RUN npm ci
 
 
-FROM base as backend_build
-WORKDIR /app
-
-COPY --from=backend_deps /app .
+FROM backend_deps as backend_build
 
 RUN npm run build
 
-FROM base as frontend_build
-WORKDIR /app
+FROM frontend_deps as frontend_build
 
 RUN apk add --no-cache libc6-compat
-
-COPY --from=frontend_deps /app .
 
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
@@ -48,8 +42,6 @@ RUN apk add curl
 COPY --from=backend_build --chown=runner:nodejs /app ./backend
 COPY --from=frontend_build --chown=runner:nodejs /app ./frontend
 COPY ./process.json .
-
-RUN ls -la ./frontend/.next
 
 USER runner
 
