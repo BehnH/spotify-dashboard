@@ -94,7 +94,7 @@ export const getAccessToken = async (res: Response, code: string) => {
         return res
             .setHeader('Set-Cookie', `token=${token}; Path=/; HttpOnly; SameSite=Strict;`)
             .setHeader('Cache-Control', 'no-cache')
-            .redirect(301, 'http://localhost:3000/')
+            .redirect(301, process.env.PUBLIC_URL)
 
 
     } catch (error) {
