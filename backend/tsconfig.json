@@ -6,6 +6,7 @@
         "sourceMap": false,
         "resolveJsonModule": true,
         "rootDir": "./src",
+        "moduleResolution": "Node16"
     },
     "include": [
         "src/**/*"
