@@ -1,0 +1,9 @@
+{
+    "apps": [{
+        "name": "backend",
+        "script": "./backend/build/index.js"
+    }, {
+        "name": "frontend",
+        "script": "npm run start --prefix ./frontend"
+    }]
+}
