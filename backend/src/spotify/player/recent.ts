@@ -1,7 +1,12 @@
 import { Response } from "express";
 import { prisma } from "../..";
 
-export const getRecentTracksApi = async (res: Response, userId: string, limit?: number): Promise<Response> => {
+export const getRecentTracksApi = async (
+    res: Response,
+    userId: string,
+    limit?: number,
+    offset?: number
+): Promise<Response> => {
     const user = await prisma.user.findUnique({
         where: {
             id: userId
@@ -52,6 +57,7 @@ export const getRecentTracksApi = async (res: Response, userId: string, limit?: 
             },
         },
         take: limit ? limit : 20,
+        skip: offset ? offset : 0
     });
 
     return res.status(200).json({
