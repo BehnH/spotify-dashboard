@@ -2,6 +2,7 @@ import { Router } from "express";
 import z from "zod";
 import { validateRequest } from "zod-express-middleware";
 import { prisma } from "..";
+import { getTrackAudioAnalysis, getTrackAudioFeatures } from "../spotify/client/track";
 
 const router = Router();
 export default router;
@@ -33,8 +34,8 @@ router.get('/:id', validateRequest({
         id: z.string().nonempty()
     }),
     query: z.object({
-        analysis: z.boolean().optional().default(false),
-        features: z.boolean().optional().default(false)
+        analysis: z.string().optional().default('0'),
+        features: z.string().optional().default('0')
     })
 }), async (req, res) => {
     const { id } = req.params;
@@ -43,7 +44,7 @@ router.get('/:id', validateRequest({
         const track = await prisma.track.findUnique({
             where: {
                 id
-            }
+            },
         });
 
         if (!track) return res.status(404).json({
@@ -51,8 +52,14 @@ router.get('/:id', validateRequest({
             total: 0
         });
 
+        const trackRep = {
+            ...track,
+            analysis: req.query.analysis === '1' ? await getTrackAudioAnalysis(track.id, req.user!) : {},
+            features: req.query.features === '1' ? await getTrackAudioFeatures(track.id, req.user!) : {}
+        }
+
         return res.status(200).json({
-            tracks: [track],
+            tracks: [trackRep],
             total: 1
         });
     } catch (error) {

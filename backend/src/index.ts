@@ -137,36 +137,6 @@ app.get("/api/v1/artist", async (req, res) => {
     return res.status(200).json(artist);
 });
 
-app.get("/api/v1/track", async (req, res) => {
-    const trackId = req.query?.id;
-    if (!trackId) return res.status(501).send("You must specify a URL param called track");
-
-    const trackIdIncludeAnalysis = req.query?.analysis;
-    const trackIdIncludeFeatures = req.query?.features;
-
-    const track = await getTrackAudioFeatures(trackId as string, req.user!);
-
-    const trackResponse = {
-        track: track,
-        analysis: {},
-        features: {}
-    }
-
-    if (trackIdIncludeAnalysis === "true") {
-        const audioAnalysis = await getTrackAudioAnalysis(trackId as string, req.user!);
-        if (typeof audioAnalysis === "object") return trackResponse.analysis = audioAnalysis;
-        return trackResponse.analysis = {};
-    }
-
-    if (trackIdIncludeFeatures === "true") {
-        const audioFeatures = await getTrackAudioFeatures(trackId as string, req.user!);
-        if (typeof audioFeatures === "object") return trackResponse.features = audioFeatures;
-        return trackResponse.features = {};
-    }
-
-    return res.status(200).json(trackResponse);
-});
-
 app.get("/api/v1/track/top", async (req, res) => {
     const artistCountType = req.query?.type;
     const allowedArtistCountTypes = ["pastday", "pastweek", "all"];
