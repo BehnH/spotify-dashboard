@@ -1,10 +1,10 @@
-import { User } from "@prisma/client";
-import { refreshAccessToken } from "../spotify/auth/refresh";
+import { type User } from "@prisma/client";
 import { prisma } from "..";
 import { AlbumEndpointResponse } from "../types/AlbumTypes";
 import { ArtistEndpointResponse } from "../types/ArtistTypes";
 import { RecentlyPlayedTrack } from "../types/TrackTypes";
 import { request } from "undici";
+import { ApiClient, SpotifyClient } from "../utils/SpotifyApi";
 
 type RecentlyPlayedTracks = {
     track: RecentlyPlayedTrack;
@@ -21,7 +21,18 @@ const scanRecentlyPlayed = async (user: User) => {
 
     if (!(usr.expiresAt > Math.floor(Date.now() / 1000))) {
         console.log(`Refreshing access token for ${user.displayName ? user.displayName : user.id}`)
-        usr = await refreshAccessToken(user.refreshToken);
+        const refreshedToken = await SpotifyClient.refreshToken(user.refreshToken);
+        if (!refreshedToken) return console.error(`Failed to refresh token for ${user.displayName ? user.displayName : user.id}. Log in again.`);
+
+        usr = await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                accessToken: refreshedToken.accessToken,
+                expiresAt: refreshedToken.expiresAt
+            }
+        });
     }
 
     const response = await request('https://api.spotify.com/v1' + url, {
@@ -35,39 +46,18 @@ const scanRecentlyPlayed = async (user: User) => {
 
     try {
         for (const item of response.items) {
-            const artistLookup = await prisma.artist.findMany({
-                where: {
-                    id: {
-                        in: item.track.artists.map((artist: any) => artist.id)
-                    }
-                }
-            });
+            const [artists, album, track] = await prisma.$transaction([
+                prisma.artist.findMany({ where: { id: { in: item.track.artists.map((artist: any) => artist.id) } } }),
+                prisma.album.findUnique({ where: { id: item.track.album.id } }),
+                prisma.track.findUnique({ where: { id: item.track.id } })
+            ])
 
-            const albumLookup = await prisma.album.findMany({
-                where: {
-                    id: item.track.album.id
-                }
-            });
-
-            const trackLookup = await prisma.track.findMany({
-                where: {
-                    id: item.track.id
-                }
-            });
-
-
-            // Create artists if they don't exist
-            if (artistLookup.length < item.track.artists.length) {
-                const artistIds = item.track.artists.filter((artist: ArtistEndpointResponse) => !artistLookup.find((artistLookup) => artistLookup.id === artist.id));
-                const artists = await request(`https://api.spotify.com/v1/artists?ids=${artistIds.map((artist: ArtistEndpointResponse) => artist.id).join(',')}`, {
-                    headers: {
-                        Authorization: `Bearer ${usr.accessToken}`
-                    }
-                }).then((res) => res.body.json() as Promise<{ artists: ArtistEndpointResponse[] }>)
-
+            if (artists.length < item.track.artists.length) {
+                const artistIds = item.track.artists.filter((artist: ArtistEndpointResponse) => !artists.find((artistLookup) => artistLookup.id === artist.id));
+                const artistsRes = await ApiClient.get<{ artists: ArtistEndpointResponse[] }>(`/artists?ids=${artistIds.map((artist: ArtistEndpointResponse) => artist.id).join(',')}`, user.accessToken);
 
                 await prisma.artist.createMany({
-                    data: artists.artists.map((artist: ArtistEndpointResponse) => ({
+                    data: artistsRes.artists.map((artist: ArtistEndpointResponse) => ({
                         id: artist.id,
                         userHref: artist.external_urls.spotify,
                         href: artist.href,
@@ -76,11 +66,12 @@ const scanRecentlyPlayed = async (user: User) => {
                         popularity: artist.popularity ?? 0,
                         type: artist.type,
                         uri: artist.uri
-                    }))
+                    })),
+                    skipDuplicates: true
                 });
 
                 await prisma.image.createMany({
-                    data: artists.artists.map((artist: ArtistEndpointResponse) => artist.images.map((image) => ({
+                    data: artistsRes.artists.map((artist: ArtistEndpointResponse) => artist.images.map((image) => ({
                         height: image.height,
                         width: image.width,
                         url: image.url,
@@ -89,28 +80,23 @@ const scanRecentlyPlayed = async (user: User) => {
                 });
             }
 
-            // Create album if it doesn't exist
-            if (albumLookup.length < 1) {
-                const album = await request(item.track.album.href, {
-                    headers: {
-                        Authorization: `Bearer ${usr.accessToken}`
-                    }
-                }).then((res) => res.body.json() as Promise<AlbumEndpointResponse>);
+            if (!album) {
+                const albumRes = await ApiClient.get<AlbumEndpointResponse>(`/albums/${item.track.album.id}`, user.accessToken);
 
                 await prisma.album.create({
                     data: {
-                        id: album.id,
-                        userHref: album.external_urls.spotify,
-                        href: album.href,
-                        albumType: album.album_type,
-                        totalTracks: album.total_tracks,
-                        name: album.name,
-                        releaseDate: album.release_date,
-                        releaseDatePrecision: album.release_date_precision,
-                        uri: album.uri,
-                        genres: album.genres,
-                        popularity: album.popularity,
-                        label: album.label,
+                        id: albumRes.id,
+                        userHref: albumRes.external_urls.spotify,
+                        href: albumRes.href,
+                        albumType: albumRes.album_type,
+                        totalTracks: albumRes.total_tracks,
+                        name: albumRes.name,
+                        releaseDate: albumRes.release_date,
+                        releaseDatePrecision: albumRes.release_date_precision,
+                        uri: albumRes.uri,
+                        genres: albumRes.genres,
+                        popularity: albumRes.popularity,
+                        label: albumRes.label,
                         artists: {
                             connect: item.track.artists.map((artist: ArtistEndpointResponse) => ({ id: artist.id }))
                         }
@@ -118,18 +104,16 @@ const scanRecentlyPlayed = async (user: User) => {
                 })
 
                 await prisma.image.createMany({
-                    data: album.images.map((image) => ({
+                    data: albumRes.images.map((image) => ({
                         height: image.height,
                         width: image.width,
                         url: image.url,
                         albumId: item.track.album.id
                     }))
                 });
-
             }
 
-            // Create track if it doesn't exist
-            if (trackLookup.length < 1) {
+            if (!track) {
                 await prisma.track.create({
                     data: {
                         id: item.track.id,
