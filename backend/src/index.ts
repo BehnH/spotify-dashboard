@@ -3,13 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express, { Express, NextFunction, Request, Response } from "express";
 import helmet from "helmet";
-import { getRecentTracksApi } from "./spotify/player/recent";
+
 import { trackCount } from "./spotify/analytics/tracks";
 import { uniqueArtistCount } from "./spotify/analytics/artists";
-import { getTrackAudioAnalysis, getTrackAudioFeatures } from "./spotify/client/track";
 import scanRecentlyPlayedForAllUsers from "./jobs/recentlyPlayed";
 import morgan from "morgan";
-import { getTopTracks } from "./spotify/stats/tracks";
 
 import loginRouter from "./routes/auth";
 import albumRouter from "./routes/album";
@@ -17,8 +15,6 @@ import artistRouter from "./routes/artist";
 import trackRouter from "./routes/track";
 import analysisRouter from "./routes/analysis";
 import { JWTUtils } from "./utils/jwtUtils";
-import { validateRequest } from "zod-express-middleware";
-import z from "zod";
 
 export const prisma = new PrismaClient();
 
@@ -86,16 +82,6 @@ app.get("/api/v1/whoami", (req, res) => {
     });
 });
 
-app.get("/api/v1/history", validateRequest({
-    query: z.object({
-        limit: z.number().optional().default(20),
-        offset: z.number().optional().default(0)
-    }),
-}), async (req, res) => {
-    const { limit } = req.query;
-    return await getRecentTracksApi(res, req.user!.id, limit)
-});
-
 app.get("/api/v1/analytics/tracks", async (req, res) => {
     const trackCountType = req.query?.type;
     const allowedTrackCountTypes = ["pastday", "pastweek", "all"];
@@ -112,38 +98,6 @@ app.get("/api/v1/analytics/artists", async (req, res) => {
 
     const artistCountResponse = await uniqueArtistCount(req.user!.id, artistCountType as any);
     return res.status(200).json(artistCountResponse);
-});
-
-app.get("/api/v1/artist", async (req, res) => {
-    const artistId = req.query?.id;
-    if (!artistId) return res.status(501).send("You must specify a URL param called artist");
-
-    const artist = await prisma.artist.findUnique({
-        where: {
-            id: artistId as string
-        },
-        include: {
-            images: true,
-            tracks: {
-                include: {
-                    album: true,
-                }
-            }
-        }
-    });
-
-    if (!artist) return res.status(404).send("Artist not found");
-
-    return res.status(200).json(artist);
-});
-
-app.get("/api/v1/track/top", async (req, res) => {
-    const artistCountType = req.query?.type;
-    const allowedArtistCountTypes = ["pastday", "pastweek", "all"];
-
-    console.log(await getTopTracks(req.user!.id, 'day'));
-
-    return res.status(501).send("Not implemented");
 });
 
 app.listen(9000, '::', () => {
