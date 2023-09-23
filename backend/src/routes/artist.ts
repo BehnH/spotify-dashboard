@@ -28,7 +28,21 @@ router.get("/:id", validateRequest({
         }
     });
 
+    const playHistory = await prisma.playHistory.findMany({
+        where: {
+            trackId: {
+                in: artist!.tracks.map(track => track.id)
+            }
+        },
+    });
+
+    const rep = {
+        artist,
+        userHistory: playHistory.filter(history => history.userId === req.user!.id),
+        globalPlays: playHistory.length
+    }
+
     if (!artist) return res.status(404).send("Artist not found");
 
-    return res.status(200).json(artist);
+    return res.status(200).json(rep);
 });
