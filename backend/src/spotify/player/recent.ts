@@ -1,24 +1,10 @@
-import { Response } from "express";
 import { prisma } from "../..";
 
 export const getRecentTracksApi = async (
-    res: Response,
     userId: string,
     limit?: number,
     offset?: number
-): Promise<Response> => {
-    const user = await prisma.user.findUnique({
-        where: {
-            id: userId
-        }
-    });
-
-    if (!user) return res.status(500).send(JSON.stringify({
-        success: false,
-        message: 'User not found',
-        data: null
-    }));
-
+) => {
     const tracks = await prisma.playHistory.findMany({
         where: {
             userId: userId
@@ -60,9 +46,8 @@ export const getRecentTracksApi = async (
         skip: offset ? offset : 0
     });
 
-    return res.status(200).json({
-        success: true,
-        message: "",
-        data: tracks ? tracks : []
-    });
+    return {
+        tracks,
+        total: tracks.length
+    };
 };
