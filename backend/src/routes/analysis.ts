@@ -18,7 +18,9 @@ router.get("/history",
     async (req, res) => {
         const { limit, offset } = req.query;
 
-        return await getRecentTracksApi(res, req.user!.id, limit, offset);
+        const history = await getRecentTracksApi(req.user!.id, limit, offset);
+
+        return res.status(200).json(history);
     }
 );
 
@@ -30,6 +32,8 @@ router.get("/tracks",
         }),
     }),
     async (req, res) => {
+        const { type, trackdata } = req.query;
+
         return res.status(501).send("Not implemented");
     }
 )
