@@ -27,9 +27,8 @@ export type TrackAnalytics = {
 }
 
 export type ListeningHistory = {
-    success: boolean;
-    message: string | null;
-    data: {
+    total: number;
+    tracks: {
         id: string;
         userId: string;
         playedAt: string;

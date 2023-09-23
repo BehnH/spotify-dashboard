@@ -81,19 +81,19 @@ export default function Home() {
                     {trackAnalytics && artistAnalytics && (
                         <>
                             <PlayHistroyTrackDiff
-                                count={trackAnalytics!.count}
-                                prevDayCount={trackAnalytics!.prevDayCount}
-                                diffPercent={trackAnalytics!.diffPercent}
+                                count={trackAnalytics.count}
+                                prevDayCount={trackAnalytics.prevDayCount}
+                                diffPercent={trackAnalytics.diffPercent}
                             />
                             <ArtistHistroyTrackDiff
-                                count={artistAnalytics!.count}
-                                diffCount={artistAnalytics!.diffCount}
-                                diffPercent={artistAnalytics!.diffPercent}
+                                count={artistAnalytics.count}
+                                diffCount={artistAnalytics.diffCount}
+                                diffPercent={artistAnalytics.diffPercent}
                             />
                             <PlayHistoryListenTime
-                                listenTimeMs={trackAnalytics!.listenTimeMs}
-                                listenTimePastMs={trackAnalytics!.listenTimePastMs}
-                                listenTimeDiffMs={trackAnalytics!.listenTimeDiffMs}
+                                listenTimeMs={trackAnalytics.listenTimeMs}
+                                listenTimePastMs={trackAnalytics.listenTimePastMs}
+                                listenTimeDiffMs={trackAnalytics.listenTimeDiffMs}
                             />
                         </>
                     )}
@@ -106,7 +106,7 @@ export default function Home() {
                         <LoadingSpinner />
                     </div>
                 )}
-                {playHistory && playHistory!.tracks.map((track) => {
+                {playHistory && playHistory.tracks.map((track) => {
                     return (
                         <PlayHistoryTrackCard key={track.id} track={track} />
                     )
