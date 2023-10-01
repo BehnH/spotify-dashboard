@@ -152,9 +152,9 @@ const scanRecentlyPlayed = async (user: User) => {
                     lastScan: Math.floor(Date.now() / 1000)
                 }
             });
-
-            logger.info(`Completed scan for ${user.displayName ? user.displayName : user.id} for recently played tracks`)
         }
+
+        logger.info(`Completed scan for ${user.displayName ? user.displayName : user.id} for recently played tracks`)
     } catch (error) {
         logger.error(error);
     }
