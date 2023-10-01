@@ -5,6 +5,7 @@ import { ArtistEndpointResponse } from "../types/ArtistTypes";
 import { RecentlyPlayedTrack } from "../types/TrackTypes";
 import { request } from "undici";
 import { ApiClient, SpotifyClient } from "../utils/SpotifyApi";
+import logger from "../utils/logger";
 
 type RecentlyPlayedTracks = {
     track: RecentlyPlayedTrack;
@@ -14,15 +15,15 @@ type RecentlyPlayedTracks = {
 const scanRecentlyPlayed = async (user: User) => {
     let usr: User = user;
 
-    if (!user.accessToken) return console.error(`No access token for ${user.displayName ? user.displayName : user.id}. Log in again.`);
+    if (!user.accessToken) return logger.error(`No access token for ${user.displayName ? user.displayName : user.id}. Log in again.`);
     const lastScan = user.lastScan ? user.lastScan - 1000 * 60 * 60 * 2 : Date.now() - 1000 * 60 * 60 * 2;
 
     const url = `/me/player/recently-played?after${lastScan}`;
 
     if (!(usr.expiresAt > Math.floor(Date.now() / 1000))) {
-        console.log(`Refreshing access token for ${user.displayName ? user.displayName : user.id}`)
+        logger.info(`Refreshing access token for ${user.displayName ? user.displayName : user.id}`)
         const refreshedToken = await SpotifyClient.refreshToken(user.refreshToken);
-        if (!refreshedToken) return console.error(`Failed to refresh token for ${user.displayName ? user.displayName : user.id}. Log in again.`);
+        if (!refreshedToken) return logger.error(`Failed to refresh token for ${user.displayName ? user.displayName : user.id}. Log in again.`);
 
         usr = await prisma.user.update({
             where: {
@@ -40,9 +41,9 @@ const scanRecentlyPlayed = async (user: User) => {
             Authorization: `Bearer ${usr.accessToken}`
         }
     }).then((res) => res.body.json() as Promise<{ href: string, limit: number, next: string, total: number, items: RecentlyPlayedTracks[] }>)
-        .catch((err: Error) => console.error(err));
+        .catch((err: Error) => logger.error(err));
 
-    if (!response) return console.error(`No response for ${user.displayName ? user.displayName : user.id}.`);
+    if (!('items' in response)) return logger.error(`No response for ${user.displayName ? user.displayName : user.id}.`);
 
     try {
         for (const item of response.items) {
@@ -151,9 +152,11 @@ const scanRecentlyPlayed = async (user: User) => {
                     lastScan: Math.floor(Date.now() / 1000)
                 }
             });
+
+            logger.info(`Completed scan for ${user.displayName ? user.displayName : user.id} for recently played tracks`)
         }
     } catch (error) {
-        console.error(error);
+        logger.error(error);
     }
 }
 
@@ -162,7 +165,7 @@ export default async function scanRecentlyPlayedForAllUsers() {
         const users = await prisma.user.findMany({});
 
         for (const user of users) {
-            console.log(`Scanning recently played for ${user.displayName ? user.displayName : user.id}`)
+            logger.info(`Scanning recently played for ${user.displayName ? user.displayName : user.id}`)
             await scanRecentlyPlayed(user);
         }
     }, 60000);

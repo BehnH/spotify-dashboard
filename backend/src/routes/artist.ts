@@ -12,7 +12,6 @@ router.get("/:id", validateRequest({
     })
 }), async (req, res) => {
     const { id } = req.params;
-    console.log(id)
 
     const artist = await prisma.artist.findUnique({
         where: {

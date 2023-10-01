@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ApiClient, SpotifyClient } from "../utils/SpotifyApi";
 import { prisma } from "..";
 import { JWTUtils } from "../utils/jwtUtils";
+import logger from "../utils/logger";
 
 const router = Router();
 export default router;
@@ -24,7 +25,7 @@ router.get('/login/callback', async (req, res) => {
     try {
         const data = await ApiClient.get<UserData>('/me', info.accessToken)
         if (data.error) {
-            console.error(data.error);
+            logger.error(data.error);
             return res.status(data.error.status).send(data.error.message);
         }
 
@@ -55,7 +56,7 @@ router.get('/login/callback', async (req, res) => {
             .setHeader('Cache-Control', 'no-cache')
             .redirect(301, `${process.env.PUBLIC_URL}/`);
     } catch (err) {
-        console.log(err);
+        logger.error(err);
         return res.status(500).send('Internal server error');
     }
 });
@@ -67,7 +68,7 @@ router.get('/logout', (req, res) => {
             .setHeader('Cache-Control', 'no-cache')
             .redirect(301, `${process.env.PUBLIC_URL}/auth/login`);
     } catch (err) {
-        console.log(err);
+        logger.error(err);
         return res.status(500).send('Internal server error');
     }
 });

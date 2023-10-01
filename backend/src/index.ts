@@ -15,6 +15,7 @@ import artistRouter from "./routes/artist";
 import trackRouter from "./routes/track";
 import analysisRouter from "./routes/analysis";
 import { JWTUtils } from "./utils/jwtUtils";
+import logger from "./utils/logger";
 
 export const prisma = new PrismaClient();
 
@@ -101,5 +102,5 @@ app.get("/api/v1/analytics/artists", async (req, res) => {
 });
 
 app.listen(9000, '::', () => {
-    console.log(`Listening on port 9000`);
+    logger.info("Server started on port 9000");
 });

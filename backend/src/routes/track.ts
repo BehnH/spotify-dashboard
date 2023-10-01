@@ -3,6 +3,7 @@ import z from "zod";
 import { validateRequest } from "zod-express-middleware";
 import { prisma } from "..";
 import { getTrackAudioAnalysis, getTrackAudioFeatures } from "../spotify/client/track";
+import logger from "../utils/logger";
 
 const router = Router();
 export default router;
@@ -63,7 +64,7 @@ router.get('/:id', validateRequest({
             total: 1
         });
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         return res.status(500).send("Internal server error");
     }
 });
