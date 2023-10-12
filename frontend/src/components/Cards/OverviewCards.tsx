@@ -4,6 +4,7 @@ import React from 'react'
 import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { millisecondsToHours } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
 export function PlayHistoryTrackCard({ track }: { track: any }) {
 
@@ -44,56 +45,62 @@ export function PlayHistoryTrackCard({ track }: { track: any }) {
 
 export function OverviewLoadingCard() {
     return (
-        <>
-            <div className="relative flex flex-shrink-0 lg:w-96 flex-col rounded-xl bg-slate-100 dark:bg-slate-300 text-gray-700 shadow-md">
-                <div className="p-2">
-                    <h5 className="mb-2 font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
-                        Crunching the numbers...
-                    </h5>
-                </div>
-            </div>
-        </>
+        <Card>
+            <CardHeader>
+                <CardTitle>
+                    Crunching the numbers...
+                </CardTitle>
+            </CardHeader>
+        </Card>
     )
+
+
+    // return (
+    //     <>
+    //         <div className="relative flex flex-shrink-0 lg:w-96 flex-col rounded-xl bg-slate-100 dark:bg-slate-300 text-gray-700 shadow-md">
+    //             <div className="p-2">
+    //                 <h5 className="mb-2 font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
+    //                     Crunching the numbers...
+    //                 </h5>
+    //             </div>
+    //         </div>
+    //     </>
+    // )
 }
 
 export function ArtistHistroyTrackDiff({ count, diffCount, diffPercent }: { count: number, diffCount: number, diffPercent: number }) {
-
     return (
-        <>
-            <div className="relative flex flex-shrink-0 lg:w-96 flex-col rounded-xl bg-slate-100 dark:bg-slate-300 text-gray-700 shadow-md">
-                <div className="p-2">
-                    <h5 className="mb-2 font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
-                        You&apos;ve listened to {count} artists today
-                    </h5>
-                    <div className="flex flex-row flex-nowrap">
-                        {diffCount > 0 ? <ChevronsUp color="#01c618" strokeWidth={3} /> : <ChevronsDown color="#c60101" strokeWidth={3} />}
-                        <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                            That&apos;s {diffCount} {diffCount > 0 ? 'more' : 'less'} than yesterday ({diffPercent}%)
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </>
+        <Card className='rounded-xl'>
+            <CardHeader>
+                <CardTitle>
+                    You&apos;ve listened to {count} artists today
+                </CardTitle>
+                <CardDescription className='flex flex-row flex-nowrap'>
+                    {diffCount > 0 ? <ChevronsUp color="#01c618" strokeWidth={3} /> : <ChevronsDown color="#c60101" strokeWidth={3} />}
+                    <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
+                        That&apos;s {diffCount} {diffCount > 0 ? 'more' : 'less'} than yesterday ({diffPercent}%)
+                    </p>
+                </CardDescription>
+            </CardHeader>
+        </Card>
     )
 }
 
 export function PlayHistroyTrackDiff({ count, prevDayCount, diffPercent }: { count: number, prevDayCount: number, diffPercent: number }) {
     return (
-        <>
-            <div className="relative flex flex-shrink-0 lg:w-96 flex-col rounded-xl bg-slate-100 dark:bg-slate-300 text-gray-700 shadow-md">
-                <div className="p-2">
-                    <h5 className="mb-2 font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
-                        You&apos;ve listened to {count} tracks today
-                    </h5>
-                    <div className="flex flex-row flex-nowrap">
-                        {Math.floor(count - prevDayCount) > 0 ? <ChevronsUp color="#01c618" strokeWidth={3} /> : <ChevronsDown color="#c60101" strokeWidth={3} />}
-                        <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                            That&apos;s {Math.abs(count - prevDayCount)} {Math.floor(count - prevDayCount) > 0 ? 'more' : 'less'} than yesterday ({diffPercent}%)
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </>
+        <Card className='rounded-xl'>
+            <CardHeader>
+                <CardTitle>
+                    You&apos;ve listened to {count} tracks today
+                </CardTitle>
+                <CardDescription className='flex flew-row flex-nowrap'>
+                    {Math.floor(count - prevDayCount) > 0 ? <ChevronsUp color="#01c618" strokeWidth={3} /> : <ChevronsDown color="#c60101" strokeWidth={3} />}
+                    <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
+                        That&apos;s {Math.abs(count - prevDayCount)} {Math.floor(count - prevDayCount) > 0 ? 'more' : 'less'} than yesterday ({diffPercent}%)
+                    </p>
+                </CardDescription>
+            </CardHeader>
+        </Card>
     )
 }
 
@@ -110,21 +117,19 @@ export function PlayHistoryListenTime({
     listenTimeDiffMs: number
 }) {
     return (
-        <>
-            <div className="relative flex flex-shrink-0 lg:w-96 flex-col rounded-xl bg-slate-100 dark:bg-slate-300 text-gray-700 shadow-md">
-                <div className="p-2">
-                    <h5 className="mb-2 font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
-                        You&apos;ve listened for {millisecondsToHours(listenTimeMs)} hours today
-                    </h5>
-                    <div className="flex flex-row flex-nowrap">
-                        {listenTimeMs > listenTimePastMs ? <ChevronsUp color="#01c618" strokeWidth={3} /> : <ChevronsDown color="#c60101" strokeWidth={3} />}
-                        <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                            That&apos;s {millisecondsToHours(listenTimePastMs)} {listenTimeMs > listenTimePastMs ? ' more' : ' less'} than yesterday
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </>
+        <Card className='rounded-xl'>
+            <CardHeader>
+                <CardTitle>
+                    You&apos;ve listened for {millisecondsToHours(listenTimeMs)} hours today
+                </CardTitle>
+                <CardDescription className='flex flew-row flex-nowrap'>
+                    {listenTimeMs > listenTimePastMs ? <ChevronsUp color="#01c618" strokeWidth={3} /> : <ChevronsDown color="#c60101" strokeWidth={3} />}
+                    <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
+                        That&apos;s {millisecondsToHours(listenTimePastMs)} {listenTimeMs > listenTimePastMs ? ' more' : ' less'} than yesterday
+                    </p>
+                </CardDescription>
+            </CardHeader>
+        </Card>
     )
 }
 
