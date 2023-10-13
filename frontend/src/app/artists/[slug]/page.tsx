@@ -5,10 +5,11 @@ import { Navbar } from '@/components/Navbar'
 import { Separator } from '@/components/ui/separator';
 import { ArtistInfo } from '../../../../types/Artist';
 import Image from 'next/image';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import { padTime } from '@/lib/padTime';
+import { ArtistTracksTable } from './track-table';
+import { trackTableCols } from './track-table-cols';
 
-function padTime(i: number) { return ('0' + i).slice(-2) };
 type ArtistInfoPageProps = {
     artist: ArtistInfo;
     userHistory: ReadonlyArray<{ id: string, userId: string, playedAt: number, trackId: string }>
@@ -44,9 +45,7 @@ export default function ArtistInfoPage({ params }: { params: { slug: string } })
             {!isLoading && artistInfo && (
                 <>
                     <div className='m-6 text-white'>
-                        <h1 className='text-3xl font-semibold mb-2'>{artistInfo.artist.name}</h1>
-                        <h5 className='text-md font-light mb-2'>Here&apos;s some insights in to {artistInfo.artist.name}</h5>
-                        <div className='m-4'>
+                        <h1 className='text-3xl font-semibold mb-2'>{artistInfo.artist.name}</h1>                        <div className='m-4'>
                             <Separator />
                         </div>
                     </div>
@@ -78,30 +77,18 @@ export default function ArtistInfoPage({ params }: { params: { slug: string } })
                     </div>
                     <div className='mx-4 text-white'>
                         <h2 className='text-2xl font-semibold mb-2'>{artistInfo.artist.name}&apos;s tracks</h2>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Track Name</TableHead>
-                                    <TableHead>Album</TableHead>
-                                    <TableHead>Duration</TableHead>
-                                    <TableHead>Popularity</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {artistInfo.artist.tracks.map((track) => {
-                                    const time = new Date(track.durationMs)
+                        <ArtistTracksTable
+                            data={artistInfo.artist.tracks.map((track) => {
+                                return {
+                                    name: track.name,
+                                    album: track.album!.name,
+                                    duration: `${padTime(new Date(track.durationMs).getMinutes())}:${padTime(new Date(track.durationMs).getSeconds())}`,
+                                    popularity: `${track.popularity}%`
+                                }
+                            })}
 
-                                    return (
-                                        <TableRow key={track.id!}>
-                                            <TableCell>{track.name!}</TableCell>
-                                            <TableCell>{track?.album?.name}</TableCell>
-                                            <TableCell>{padTime(time.getMinutes())}:{padTime(time.getSeconds())}</TableCell>
-                                            <TableCell>{track.popularity!}%</TableCell>
-                                        </TableRow>
-                                    )
-                                })}
-                            </TableBody>
-                        </Table>
+                            columns={trackTableCols}
+                        />
                     </div>
                 </>
             )}
