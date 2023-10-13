@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar'
-import { ArtistHistroyTrackDiff, PlayHistoryListenTime, PlayHistoryTrackCard, PlayHistroyTrackDiff, SkeletonCard } from '@/components/Cards/OverviewCards';
+import { ArtistHistroyTrackDiff, PlayHistoryListenTime, PlayHistroyTrackDiff } from '@/components/Cards/OverviewCards';
 import useSWR from 'swr';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ListeningHistory, TrackAnalytics } from '../../types/Track';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import { PlayHistoryTrackCard } from '@/components/Cards/RecentTrackCard';
 
 export default function Home() {
 
@@ -70,42 +71,38 @@ export default function Home() {
                     <Separator />
                 </div>
                 <h2 className='text-2xl font-semibold text-white mb-2'>Your Overview</h2>
-                <div className='flex flex-col md:grid md:grid-cols-2 xl:grid-cols-3 justify-items-center gap-2'>
-                    {(!trackAnalytics || !artistAnalytics) && (
-                        <>
-                            <SkeletonCard />
-                            <SkeletonCard />
-                            <SkeletonCard />
-                        </>
-                    )}
-                    {trackAnalytics && artistAnalytics && (
-                        <>
-                            <PlayHistroyTrackDiff
-                                count={trackAnalytics.count}
-                                prevDayCount={trackAnalytics.prevDayCount}
-                                diffPercent={trackAnalytics.diffPercent}
-                            />
-                            <ArtistHistroyTrackDiff
-                                count={artistAnalytics.count}
-                                diffCount={artistAnalytics.diffCount}
-                                diffPercent={artistAnalytics.diffPercent}
-                            />
-                            <PlayHistoryListenTime
-                                listenTimeMs={trackAnalytics.listenTimeMs}
-                                listenTimePastMs={trackAnalytics.listenTimePastMs}
-                                listenTimeDiffMs={trackAnalytics.listenTimeDiffMs}
-                            />
-                        </>
-                    )}
-                </div>
-            </div>
-            <h2 className='text-2xl font-semibold px-6 text-white'>20 Most Recent Tracks</h2>
-            <div className='px-2 lg:px-6 flex flex-row flex-nowrap gap-4 overflow-x-scroll flex-shrink-0 py-12 hide-scroll-bar'>
-                {!playHistory && (
-                    <div className="flex w-full items-center justify-center object-center h-5/6">
+                {(!trackAnalytics || !artistAnalytics) && (
+                    <div className="flex w-full items-center justify-center object-center">
                         <LoadingSpinner />
                     </div>
                 )}
+                {trackAnalytics && artistAnalytics && (
+                    <div className='flex flex-col md:grid md:grid-cols-2 xl:grid-cols-3 justify-items-center gap-2'>
+                        <PlayHistroyTrackDiff
+                            count={trackAnalytics.count}
+                            prevDayCount={trackAnalytics.prevDayCount}
+                            diffPercent={trackAnalytics.diffPercent}
+                        />
+                        <ArtistHistroyTrackDiff
+                            count={artistAnalytics.count}
+                            diffCount={artistAnalytics.diffCount}
+                            diffPercent={artistAnalytics.diffPercent}
+                        />
+                        <PlayHistoryListenTime
+                            listenTimeMs={trackAnalytics.listenTimeMs}
+                            listenTimePastMs={trackAnalytics.listenTimePastMs}
+                            listenTimeDiffMs={trackAnalytics.listenTimeDiffMs}
+                        />
+                    </div>
+                )}
+            </div>
+            <h2 className='text-2xl font-semibold px-6 text-white mb-6'>20 Most Recent Tracks</h2>
+            {!playHistory && (
+                <div className="flex w-full items-center justify-center object-center">
+                    <LoadingSpinner />
+                </div>
+            )}
+            <div className='flex flex-col md:grid md:grid-cols-2 xl:grid-cols-3 justify-items-center gap-8 px-8'>
                 {playHistory && playHistory.tracks.map((track) => {
                     return (
                         <PlayHistoryTrackCard key={track.id} track={track} />
