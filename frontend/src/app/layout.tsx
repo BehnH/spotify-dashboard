@@ -1,12 +1,15 @@
 import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Roboto } from 'next/font/google'
 import { TailwindIndicator } from '@/components/TailwindIndicator'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-const inter = Inter({ subsets: ['latin'] })
+const roboto = Roboto({
+    weight: ['100', '300', '400', '500', '700', '900'],
+    subsets: ['latin']
+})
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -29,7 +32,7 @@ export default function RootLayout({
 
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.className} bg-[#181818]`}>
+            <body className={`${roboto.className}`}>
                 <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
                         {children}
                 </ThemeProvider>
