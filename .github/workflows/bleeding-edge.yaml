@@ -31,7 +31,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           cache-from: type=gha
-          cache-to: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ghcr.io/behnh/spotify-dashboard:bleeding-edge
             ghcr.io/behnh/spotify-dashboard:${{ github.sha }}
