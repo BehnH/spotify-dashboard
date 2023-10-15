@@ -31,7 +31,7 @@ export type ListeningHistory = {
     tracks: {
         id: string;
         userId: string;
-        playedAt: string;
+        playedAt: number;
         trackId: string;
         track: Track;
     }[];
