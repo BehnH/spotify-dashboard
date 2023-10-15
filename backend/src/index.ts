@@ -36,7 +36,7 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
-app.use(morgan('combined'))
+app.use(morgan('short'))
 
 app.get("/", (req, res) => {
     res.sendStatus(404);
