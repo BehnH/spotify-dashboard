@@ -1,105 +1,73 @@
 import { prisma } from "../..";
-import { startOfToday, endOfToday, endOfYesterday, startOfYesterday } from 'date-fns'
+import { startOfToday, endOfYesterday, startOfYesterday, startOfWeek } from 'date-fns'
+import { endOfTs, secondsFromTs, startOfTs, subFromCurrentAsDate } from "../../utils/dateUtils";
 
 export const trackCount = async (userId: string, type: "pastday" | "pastweek" | "all"): Promise<object> => {
     const nowSeconds = Math.floor(Date.now() / 1000);
-    const pastWeekSeconds = nowSeconds - 604800;
+
+    let baseVals: { lte: number, gte: number };
+    let prevVals: { lte: number, gte: number };
 
     switch (type) {
         case "pastday":
-            const pastDayCount = await prisma.playHistory.findMany({
-                where: {
-                    user: {
-                        id: userId
-                    },
-                    playedAt: {
-                        gte: Math.floor(new Date(startOfToday()).getTime() / 1000),
-                        lte: Math.floor(new Date(endOfToday()).getTime() / 1000)
-                    },
-                },
+            baseVals = { lte: endOfTs(new Date(), 'day'), gte: startOfTs(new Date(), 'day') };
+            prevVals = { lte: secondsFromTs(endOfYesterday()), gte: secondsFromTs(startOfYesterday()) };
+            break;
+
+        case 'pastweek':
+            baseVals = { lte: endOfTs(new Date(), 'week'), gte: startOfTs(new Date(), 'week') };
+            prevVals = { lte: endOfTs(subFromCurrentAsDate({ weeks: 1}), 'week'), gte: startOfTs(subFromCurrentAsDate({ weeks: 1}), 'week')};
+            break;
+
+        default:
+            baseVals = { lte: endOfTs(new Date(), 'day'), gte: startOfTs(new Date(), 'day') };
+            prevVals = { lte: secondsFromTs(endOfYesterday()), gte: secondsFromTs(startOfYesterday()) };
+            break;
+    }
+
+    const basePeriodSearch = await prisma.playHistory.findMany({
+        where: {
+            user: {
+                id: userId
+            },
+            playedAt: {
+                ...baseVals
+            },
+        },
+        select: {
+            track: {
                 select: {
-                    track: {
-                        select: {
-                            durationMs: true
-                        }
-                    }
+                    durationMs: true
                 }
-            });
+            }
+        }
+    });
 
-            const previousPastDay = await prisma.playHistory.findMany({
-                where: {
-                    user: {
-                        id: userId
-                    },
-                    playedAt: {
-                        gte: Math.floor(new Date(startOfYesterday()).getTime() / 1000),
-                        lte: Math.floor(new Date(endOfYesterday()).getTime() / 1000)
-                    }
-                },
+    const prevPeriodSearch = await prisma.playHistory.findMany({
+        where: {
+            user: {
+                id: userId
+            },
+            playedAt: {
+                ...prevVals
+            }
+        },
+        select: {
+            track: {
                 select: {
-                    track: {
-                        select: {
-                            durationMs: true
-                        }
-                    }
+                    durationMs: true
                 }
-            });
-
-            const pastDayResponse = {
-                count: pastDayCount.length,
-                prevDayCount: previousPastDay.length,
-                diffPercent: Math.floor((previousPastDay.length / pastDayCount.length) * 100),
-                listenTimeMs: pastDayCount.reduce((a, b) => a + b.track.durationMs, 0),
-                listenTimePastMs: previousPastDay.reduce((a, b) => a + b.track.durationMs, 0),
-                listenTimeDiffMs: pastDayCount.reduce((a, b) => a + b.track.durationMs, 0) - previousPastDay.reduce((a, b) => a + b.track.durationMs, 0)
             }
+        }
+    });
 
-            return pastDayResponse;
-        case "pastweek":
-            const pastWeek = await prisma.playHistory.count({
-                where: {
-                    user: {
-                        id: userId
-                    },
-                    playedAt: {
-                        gte: pastWeekSeconds
-                    }
-                }
-            });
-
-            const pastWeekDiff = pastWeek - await prisma.playHistory.count({
-                where: {
-                    user: {
-                        id: userId
-                    },
-                    playedAt: {
-                        gte: pastWeekSeconds - 604800,
-                        lte: pastWeekSeconds
-                    }
-                }
-            });
-
-            const pastWeekResponse = {
-                count: pastWeek,
-                diffCount: pastWeekDiff,
-                diffPercent: Math.floor((pastWeekDiff / pastWeek) * 100)
-            }
-
-            return pastWeekResponse;
-
-        case "all":
-            const allTime = await prisma.playHistory.count({
-                where: {
-                    user: {
-                        id: userId
-                    }
-                }
-            });
-
-            return {
-                count: allTime,
-                diff: 0
-            }
+    return {
+        count: basePeriodSearch.length,
+        prevDayCount: prevPeriodSearch.length,
+        diffPercent: Math.floor((basePeriodSearch.length / prevPeriodSearch.length) * 100),
+        listenTimeMs: basePeriodSearch.reduce((a, b) => a + b.track.durationMs, 0),
+        listenTimePastMs: prevPeriodSearch.reduce((a, b) => a + b.track.durationMs, 0),
+        listenTimeDiffMs: basePeriodSearch.reduce((a, b) => a + b.track.durationMs, 0) - prevPeriodSearch.reduce((a, b) => a + b.track.durationMs, 0)
     }
 };
 

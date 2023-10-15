@@ -1,6 +1,7 @@
 
 import { prisma } from "../..";
-import { endOfToday, endOfYesterday, startOfToday, startOfWeek, startOfYesterday } from 'date-fns';
+import { endOfYesterday, startOfYesterday } from 'date-fns';
+import { endOfTs, secondsFromTs, startOfTs } from "../../utils/dateUtils";
 
 export const uniqueArtistCount = async (userId: string, type: string) => {
     let baseVals: { lte: number, gte: number };
@@ -8,13 +9,13 @@ export const uniqueArtistCount = async (userId: string, type: string) => {
 
     switch (type) {
         case "pastday":
-            baseVals = { lte: Math.floor(new Date(endOfToday()).getTime() / 1000), gte: Math.floor(new Date(startOfToday()).getTime() / 1000) };
-            prevVals = { lte: Math.floor(new Date(endOfYesterday()).getTime() / 1000), gte: Math.floor(new Date(startOfYesterday()).getTime() / 1000) };
+            baseVals = { lte: endOfTs(new Date(), 'day'), gte: startOfTs(new Date(), 'day') };
+            prevVals = { lte: secondsFromTs(endOfYesterday()), gte: secondsFromTs(startOfYesterday()) };
             break;
 
         default:
-            baseVals = { lte: Math.floor(new Date(endOfToday()).getTime() / 1000), gte: Math.floor(new Date(startOfToday()).getTime() / 1000) };
-            prevVals = { lte: Math.floor(new Date(endOfYesterday()).getTime() / 1000), gte: Math.floor(new Date(startOfYesterday()).getTime() / 1000) };
+            baseVals = { lte: endOfTs(new Date(), 'day'), gte: startOfTs(new Date(), 'day') };
+            prevVals = { lte: secondsFromTs(endOfYesterday()), gte: secondsFromTs(startOfYesterday()) };
             break;
     }
 
@@ -68,7 +69,7 @@ export const uniqueArtistCount = async (userId: string, type: string) => {
     const res = {
         count: basePeriodUnique,
         prevDayCount: prevPeriodUnique,
-        diffPercent: Math.floor((prevPeriodUnique / basePeriodUnique) * 100),
+        diffPercent: Math.floor((basePeriodUnique / prevPeriodUnique) * 100),
         diffRaw: basePeriodUnique - prevPeriodUnique,
     }
 

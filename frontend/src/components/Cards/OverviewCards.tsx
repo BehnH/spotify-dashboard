@@ -14,7 +14,7 @@ export function ArtistHistroyTrackDiff({ count, diffCount, diffPercent }: { coun
                 <CardDescription className='flex flex-row flex-nowrap'>
                     {diffCount > 0 ? <ChevronsUp color="#01c618" strokeWidth={3} /> : <ChevronsDown color="#c60101" strokeWidth={3} />}
                     <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                        That&apos;s {diffCount} {diffCount > 0 ? 'more' : 'less'} than yesterday ({diffPercent}%)
+                        That&apos;s {Math.abs(diffCount)} {diffCount > 0 ? 'more' : 'less'} than yesterday ({diffPercent}%)
                     </p>
                 </CardDescription>
             </CardHeader>
