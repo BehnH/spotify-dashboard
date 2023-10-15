@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Navbar } from '@/components/Navbar'
 import { ArtistHistroyTrackDiff, PlayHistoryListenTime, PlayHistroyTrackDiff } from '@/components/Cards/OverviewCards';
 import useSWR from 'swr';
 import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ListeningHistory, TrackAnalytics } from '../../types/Track';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { PlayHistoryTrackCard } from '@/components/Cards/RecentTrackCard';
@@ -26,46 +25,22 @@ export default function Home() {
         listenTimePastMs: data.listenTimePastMs,
         listenTimeDiffMs: data.listenTimeDiffMs
     })));
-
-    useEffect(() => {
-        fetch('/api/v1/whoami')
-            .then((res) => res.json())
-            .then((data) => {
-                setUser({ name: data.data.displayName, image: data.data.image });
-            })
-    }, []);
-
-    useEffect(() => {
-        fetch('/api/v1/analytics/artists?type=pastday')
-            .then((res) => res.json())
-            .then((data) => {
-                setArtistAnalytics({ count: data.count, prevDayCount: data.prevDayCount, diffCount: data.diffRaw, diffPercent: data.diffPercent });
-            })
-    }, [])
+    useSWR('/api/v1/analytics/artists?type=pastday', (apiUrl: string) => fetch(apiUrl).then(res => res.json()).then(data => setArtistAnalytics({
+        count: data.count,
+        prevDayCount: data.prevDayCount,
+        diffCount: data.diffRaw,
+        diffPercent: data.diffPercent
+    })));
+    useSWR('/api/v1/whoami', (apiUrl: string) => fetch(apiUrl).then(res => res.json()).then(data => setUser({ name: data.data.displayName, image: data.data.image })));
 
     return (
         <div className='h-screen'>
             <Navbar />
 
             <div className='m-6'>
-                <div className='flex flex-row justify-between'>
-                    <div>
-                        <h1 className='text-3xl font-semibold text-white mb-2'>👋 Hey{user.name ? `, ${user.name}` : ''}!</h1>
-                        <h5 className='text-md font-light text-white mb-2'>Here&apos;s what happened over the past day</h5>
-                    </div>
-                    <div>
-                        <Select defaultValue='pastday'>
-                            <SelectTrigger className='w-[180px]'>
-                                <SelectValue placeholder="Choose a period..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="pastday">Past Day</SelectItem>
-                                <SelectItem value="pastweek">Past Week</SelectItem>
-                                <SelectItem value="pastmonth">Past Month</SelectItem>
-                                <SelectItem value="pastyear">Past Year</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                <div>
+                    <h1 className='text-3xl font-semibold text-white mb-2'>👋 Hey{user.name ? `, ${user.name}` : ''}!</h1>
+                    <h5 className='text-md font-light text-white mb-2'>Here&apos;s what happened over the past day</h5>
                 </div>
                 <div className='m-4'>
                     <Separator />
