@@ -11,14 +11,14 @@ export default router;
 router.get("/history",
     validateRequest({
         query: z.object({
-            limit: z.number().optional().default(20),
-            offset: z.number().optional().default(0)
+            limit: z.string().optional().default('20'),
+            offset: z.string().optional().default('0')
         }),
     }),
     async (req, res) => {
         const { limit, offset } = req.query;
 
-        const history = await getRecentTracksApi(req.user!.id, limit, offset);
+        const history = await getRecentTracksApi(req.user!.id, parseInt(limit ?? "20"), parseInt(offset ?? "0"));
 
         return res.status(200).json(history);
     }
