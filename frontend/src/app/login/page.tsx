@@ -7,7 +7,7 @@ export default function AuthPage() {
     return (
         <>
             <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-                <div className="w-full rounded-lg shadow border md:mt-0 sm:max-w-md xl:p-0 bg-slate-900 border-gray-700">
+                <div className="w-full rounded-xl shadow border md:mt-0 sm:max-w-md xl:p-0 border-foreground">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <h1 className="text-3xl font-semibold text-slate-100 mb-2 text-center">
                             Sign in to your account
@@ -21,8 +21,8 @@ export default function AuthPage() {
                             <Button
                                 className={
                                     "hover:bg-[#1DB954] bg-transparent text-white flex items-center" +
-                                    "h-[40px] rounded-lg py-8 font-bold p-6 mx-auto border-white hover:ease-in" +
-                                    "border-solid border-2 fill-[#1DB954] hover:fill-white"
+                                    "h-[40px] rounded-lg py-8 font-bold p-6 mx-auto border-foreground hover:ease-in" +
+                                    "border-solid border-2 fill-[#1DB954] hover:fill-white rounded-xl"
                                 }
                             >
                                 <Icons.spotifyIcon className="w-8 mr-4" /> Sign in with Spotify
