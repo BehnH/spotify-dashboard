@@ -1,19 +1,14 @@
 'use client';
 
 import { Navbar } from "@/components/Navbar";
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ListeningHistory } from "../../../types/Track";
 import useSWR from "swr";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { DataTable } from "./playHistoryTable";
 import { playHistoryCols } from "./playHistoryTableCols";
 import { format } from "date-fns";
-
-interface TablePaginationContextInterface {
-    pageIdx: number,
-    setPageIdx: React.Dispatch<React.SetStateAction<number>>
-}
-export const TablePaginationContext = createContext<TablePaginationContextInterface | undefined>(undefined);
+import { TablePaginationContext } from "./tableCtx";
 
 export default function PlayHistoryPage() {
 

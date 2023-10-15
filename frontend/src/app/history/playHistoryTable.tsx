@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, useReactTable } from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useContext } from "react";
-import { TablePaginationContext } from "./page";
+import { TablePaginationContext } from "./tableCtx";
 
 interface DataTableProps<TData, TValue> {
     data: TData[];
