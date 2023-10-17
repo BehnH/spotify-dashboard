@@ -1,20 +1,18 @@
 import { prisma } from "../..";
-import { startOfToday, endOfYesterday, startOfYesterday, startOfWeek } from 'date-fns'
+import { startOfToday, endOfYesterday, startOfYesterday } from 'date-fns'
 import { endOfTs, secondsFromTs, startOfTs, subFromCurrentAsDate } from "../../utils/dateUtils";
 
-export const trackCount = async (userId: string, type: "pastday" | "pastweek" | "all"): Promise<object> => {
-    const nowSeconds = Math.floor(Date.now() / 1000);
-
+export const trackCount = async (userId: string, type: "day" | "week" | "month" | "year" | "all"): Promise<object> => {
     let baseVals: { lte: number, gte: number };
     let prevVals: { lte: number, gte: number };
 
     switch (type) {
-        case "pastday":
+        case "day":
             baseVals = { lte: endOfTs(new Date(), 'day'), gte: startOfTs(new Date(), 'day') };
             prevVals = { lte: secondsFromTs(endOfYesterday()), gte: secondsFromTs(startOfYesterday()) };
             break;
 
-        case 'pastweek':
+        case 'week':
             baseVals = { lte: endOfTs(new Date(), 'week'), gte: startOfTs(new Date(), 'week') };
             prevVals = { lte: endOfTs(subFromCurrentAsDate({ weeks: 1}), 'week'), gte: startOfTs(subFromCurrentAsDate({ weeks: 1}), 'week')};
             break;
