@@ -10,7 +10,7 @@ export default router;
 
 router.get('/tracks', validateRequest({
     query: z.object({
-        q: z.string().nonempty(),
+        q: z.string().min(1),
         limit: z.number().optional().default(20),
         offset: z.number().optional().default(0)
     })
@@ -32,7 +32,7 @@ router.get('/tracks', validateRequest({
 
 router.get('/:id', validateRequest({
     params: z.object({
-        id: z.string().nonempty()
+        id: z.string().min(1)
     }),
     query: z.object({
         analysis: z.string().optional().default('0'),

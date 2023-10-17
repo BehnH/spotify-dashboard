@@ -3,7 +3,7 @@ import z from "zod";
 import { validateRequest } from "zod-express-middleware";
 import { getTopTracks } from "../spotify/stats/tracks";
 import { getRecentTracksApi } from "../spotify/player/recent";
-import { trackCountGraph } from "../spotify/analytics/tracks";
+import { trackCount, trackCountGraph } from "../spotify/analytics/tracks";
 
 const router = Router();
 export default router;
@@ -28,11 +28,13 @@ router.get("/tracks",
     validateRequest({
         query: z.object({
             type: z.enum(["day", "week", "month", "year"]).default("day"),
-            trackdata: z.boolean().optional().default(false),
+            tracks: z.boolean().optional().default(false),
         }),
     }),
     async (req, res) => {
-        const { type, trackdata } = req.query;
+        const { type, tracks } = req.query;
+
+        const trackRep = await trackCount(req.user!.id, type!);
 
         return res.status(501).send("Not implemented");
     }

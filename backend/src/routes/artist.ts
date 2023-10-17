@@ -8,7 +8,7 @@ export default router;
 
 router.get("/:id", validateRequest({
     params: z.object({
-        id: z.string().nonempty()
+        id: z.string().min(1)
     })
 }), async (req, res) => {
     const { id } = req.params;

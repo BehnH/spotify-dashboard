@@ -9,7 +9,7 @@ export default router;
 
 router.get('/albums', validateRequest({
     query: z.object({
-        q: z.string().nonempty(),
+        q: z.string().min(1),
         limit: z.number().optional().default(20),
         offset: z.number().optional().default(0)
     })
@@ -31,7 +31,7 @@ router.get('/albums', validateRequest({
 
 router.get('/:id', validateRequest({
     params: z.object({
-        id: z.string().nonempty()
+        id: z.string().min(1)
     })
 }), async (req, res) => {
     const { id } = req.params;
@@ -60,7 +60,7 @@ router.get('/:id', validateRequest({
 
 router.get('/:id/tracks', validateRequest({
     params: z.object({
-        id: z.string().nonempty()
+        id: z.string().min(1)
     }),
     query: z.object({
         limit: z.number().optional().default(20),
