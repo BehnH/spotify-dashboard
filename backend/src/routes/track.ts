@@ -2,8 +2,8 @@ import { Router } from "express";
 import z from "zod";
 import { validateRequest } from "zod-express-middleware";
 import { prisma } from "..";
-import { getTrackAudioAnalysis, getTrackAudioFeatures } from "../spotify/client/track";
 import logger from "../utils/logger";
+import { ApiClient } from "../utils/SpotifyApi";
 
 const router = Router();
 export default router;
@@ -55,8 +55,8 @@ router.get('/:id', validateRequest({
 
         const trackRep = {
             ...track,
-            analysis: req.query.analysis === '1' ? await getTrackAudioAnalysis(track.id, req.user!) : {},
-            features: req.query.features === '1' ? await getTrackAudioFeatures(track.id, req.user!) : {}
+            analysis: req.query.analysis === '1' ? await ApiClient.get(`/audio-analysis/${track.id}`, req.user?.accessToken) : {},
+            features: req.query.features === '1' ? await ApiClient.get(`/audio-features/${track.id}`, req.user?.accessToken) : {}
         }
 
         return res.status(200).json({
