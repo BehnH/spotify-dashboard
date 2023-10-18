@@ -23,10 +23,10 @@ export class JWTUtils {
 
             return await jose.jwtVerify(cookie.value, secret)
                 .then((payload) => {
-                    return { success: true, payload: payload.payload };
+                    return { success: true, payload: payload.payload, message: null };
                 })
         } catch (err) {
-            return { success: false, message: err };
+            return { success: false, payload: null, message: err };
         }
     };
 
