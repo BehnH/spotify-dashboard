@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ApiClient, SpotifyClient } from "../utils/SpotifyApi";
 import { prisma } from "..";
-import { JWTUtils } from "../utils/jwtUtils";
+import JWTUtils from "../utils/jwtUtils";
 import logger from "../utils/logger";
 
 const router = Router();

@@ -1,6 +1,7 @@
 import * as jose from 'jose';
 
-export class JWTUtils {
+// biome-ignore lint/complexity/noStaticOnlyClass: We need a static class for the API client
+export  default class JWTUtils {
     static encryptJwt = async (payload: jose.JWTPayload) => {
         const secret = new TextEncoder().encode(process.env.JWT_TOKEN_SECRET);
         const algo = 'HS256';
