@@ -56,7 +56,6 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
 
     const userFetch = await prisma.user.findUnique({
         where: {
-            // @ts-expect-error
             id: cookie.payload?.userId as string
         }
     });
