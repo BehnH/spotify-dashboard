@@ -11,6 +11,8 @@ Welcome to the **Spotify Dashboard** project! This application provides a compre
   - [Features](#features)
   - [Setting Up](#setting-up)
     - [Docker](#docker)
+  - [Development](#development)
+    - [Requirements](#requirements)
 
 ## Features
 
@@ -20,6 +22,9 @@ Welcome to the **Spotify Dashboard** project! This application provides a compre
 - **Search**: Search for tracks, albums, and artists on Spotify.
 
 ## Setting Up
+
+> [!IMPORTANT]
+> **Do not** set your domain to contain the word `spotify`. This will most likely get your domain flagged as a phishing site by Google & others.
 
 ### Docker
 
@@ -39,3 +44,18 @@ docker run -d \
     --name spotify-dashboard \
     ghcr.io/behnh/spotify-dashboard:latest
 ```
+
+## Development
+
+> [!NOTE]
+> The following instructions are, at this time, incomplete while I refactor the dev environment setup.
+
+### Requirements
+
+1. [Node.js](https://nodejs.org/en/) (v20.x)
+2. PostgreSQL (v12.x)
+3. Spotify Developer credentials
+   1. Go to https://developer.spotify.com/dashboard/ and create a new application.
+   2. Add `http://localhost:3000/api/auth/callback/spotify` as a redirect URI
+   4. Copy the Client ID and Client Secret
+   5. Create a `.env` file in the `backend/` directory of the project
