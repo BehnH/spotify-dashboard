@@ -8,6 +8,7 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "rec
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { DatePickerWithRange } from "./DateRangePicker";
 
 const GradientColors = () => {
     return (
@@ -21,11 +22,10 @@ const GradientColors = () => {
 };
 
 // @ts-ignore
-const TooltipStyle = ({ active, payload, label }) => {
+const TooltipStyle = ({ active, payload }) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-black rounded-md shadow-md p-4">
-                <p className="label">{`${label}`}</p>
                 <p className="intro">{`${payload[0].value} plays`}</p>
             </div>
         );
@@ -60,6 +60,7 @@ export default function PlayHistoryPage() {
                         <CardDescription>Have your say on spotify-dashboard&apos;s stats features by heading to <Link href={'https://github.com/behnh/spotify-dashboard/issues/54'}>this link 🔗</Link></CardDescription>
                     </CardHeader>
                 </Card>
+                <DatePickerWithRange />
                 <h1 className="text-3xl font-bold py-6">Today&apos;s stats</h1>
                 {isLoading && (
                     <>
