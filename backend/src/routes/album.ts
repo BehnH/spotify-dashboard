@@ -10,8 +10,8 @@ export default router;
 router.get('/albums', validateRequest({
     query: z.object({
         q: z.string().min(1),
-        limit: z.number().optional().default(20),
-        offset: z.number().optional().default(0)
+        limit: z.string().optional().default('20'),
+        offset: z.string().optional().default('0')
     })
 }), async (req, res) => {
     const { q, limit, offset } = req.query;
@@ -22,8 +22,8 @@ router.get('/albums', validateRequest({
                 contains: q?.toString()
             }
         },
-        take: limit,
-        skip: offset
+        take: parseInt(limit!.toString()),
+        skip: parseFloat(offset!.toString())
     });
 
     return res.status(501).send("Not implemented");
@@ -43,7 +43,7 @@ router.get('/:id', validateRequest({
             }
         });
 
-        if (!album) return res.status(404).json({
+        if (!album) return res.status(200).json({
             albums: [],
             total: 0
         });
@@ -67,5 +67,29 @@ router.get('/:id/tracks', validateRequest({
         offset: z.number().optional().default(0)
     })
 }), (req, res) => {
-    return res.status(501).send("Not implemented");
+    const { id } = req.params;
+
+    try {
+        const album = prisma.album.findUnique({
+            where: {
+                id
+            },
+            include: {
+                tracks: {}
+            }
+        });
+
+        if (!album) return res.status(200).json({
+            tracks: [],
+            total: 0
+        });
+
+        return res.status(200).json({
+            tracks: album.tracks,
+            total: album.tracks.length
+        });
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send("Internal server error");
+    }
 });
