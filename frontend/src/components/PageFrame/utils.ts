@@ -27,3 +27,11 @@ export const DividePath = (path: string) => {
     }
   });
 }
+
+export const sidenavIconClassname = (path: string, page: string) => {
+  const base = "flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8";
+
+  console.log(path, page);
+
+  return path === page ? `${base} text-foreground` : `${base} text-muted-foreground`;
+}
