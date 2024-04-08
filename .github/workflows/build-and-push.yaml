@@ -53,3 +53,16 @@ jobs:
           cache-to: type=gha
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## Your image has been built and pushed to GitHub Container Registry.\n\nYou can pull it using the following tags:\n\n```bash\n' + '${{ steps.docker_meta.outputs.tags }}' + '\n```\nAlternatively, you can pull it using the following command:\n\n```bash\ndocker pull ghcr.io/' + ${{ github.repository }} + ':dev-sha-' + ${{ env.SHORT_SHA }} + '\n```'
+            })
